@@ -146,7 +146,6 @@ def drill_dealias(v, data, alias, in_argument=False, func_assign=True, obj_assig
 
 
 import json
-floc = 'tewrwwa.json'
 floc = 'tew.json'
 data = ''
 
