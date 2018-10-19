@@ -2,9 +2,12 @@
 
 const ts = require("typescript")
 
-let sourceCode = `
-<code goes here>
-`;
+fs.readFile('d3.min.js', function (err, data) {
+  if (err) {
+    throw err; 
+  }
+  sourceCode = data.toString();
+});
 
 let __filename = 'test.tmp'
 
@@ -14,7 +17,7 @@ let tsSourceFile = ts.createSourceFile(
   ts.ScriptTarget.Latest
 );
 
-fs.writeFile("tew.json", JSON.stringify(tsSourceFile.statements), function(e) {
+fs.writeFile("out.json", JSON.stringify(tsSourceFile.statements), function(e) {
     if(e) {
         console.log(e);
     }
