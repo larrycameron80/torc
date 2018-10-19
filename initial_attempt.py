@@ -110,10 +110,8 @@ def collapse_names(node):
                 exp_text = node['expression']['text']
                 del node['expression']
             if 'escapedText' in node['name']:
-                #print("Setting name 1 " + exp_text + "." + node['name']['escapedText'])
                 node['name']['escapedText'] = exp_text + "." + node['name']['escapedText']
             elif 'text' in node['name']:
-                #print("Setting name 2 " + exp_text + "." + node['name']['text'])
                 node['name']['text'] = exp_text + "." + node['name']['text']
         
     for n in node:
@@ -130,15 +128,11 @@ def collapse_names2(node, _search=False):
     ignore_types = ['pos', 'end', 'flags', 'kind', 'maxdepth', 'modifierFlagsCache']
     valid_subtypes = ['expression', 'name']
     
-    #print("Checking " + str(node) + " -> " + str([x for x in node if (not x in ignore_types) and (not x in valid_subtypes)]) + ", " + str([x for x in node if x not in ignore_types]))
     dumpz.append([x for x in node if (not x in ignore_types) and (not x in valid_subtypes)])
     
     
-    #if len([x for x in node if (not x in ignore_types) and (not x in valid_subtypes)]) >= 1:
     if (not 'name' in node) or (not 'expression' in node) or ('escapedText' not in node['name'])\
      or ('escapedText' not in node['expression']):
-        #Definitely not a name
-        #print("Not a variable " + str(node))
         for n in node:
             trgt = node[n]
             if type(trgt) == dict:
@@ -148,22 +142,17 @@ def collapse_names2(node, _search=False):
                     collapse_names2(n1)
                     
     elif 'name' in node and 'expression' in node and cur_depth == 1:
-        #In a leaf node
-        #print("End of nested, " + str(node))
         tname = node['expression']['escapedText'] + '.' + node['name']['escapedText']
         node['name']['escapedText'] = tname
         return tname
     elif 'expression' in node and 'name' in node:
-        #print("In nested, " + str(node))
         partialname = collapse_names2(node['expression'], _search=True)
         if not partialname: return
-        #print("Received partial name " + partialname)
         if not _search:
             node['name']['escapedText'] = partialname + '.' + node['name']['escapedText']
         else:
             return partialname + '.' + node['name']['escapedText']
     else:
-        #print("Weird case: " + str(node))
         pass
     
         
@@ -206,19 +195,6 @@ Thus, we isolate:
 #What happens if you have var a = generateBlank() + generateBlank() + b + generateBlank()
 #if b is a string? Good for functions though.
 def is_alias(node):
-    '''
-    return 'kind' in node and node['kind'] in [219, 202] and 'expression' in node \
-            and 'left' in node['expression'] and 'right' in node['expression'] \
-            and 'operatorToken' in node['expression'] \
-            and 'kind' in node['expression']['operatorToken'] \
-            and node['expression']['operatorToken']['kind'] == 58 \
-            and ('name' in node['expression']['left'] or \
-                 'escapedText' in node['expression']['left'] or \
-                 'text' in node['expression']['left']) \
-            and ('name' in node['expression']['right'] or \
-                 'escapedText' in node['expression']['right'] or \
-                 'text' in node['expression']['right'])
-    '''
     return 'kind' in node and node['kind'] == 202 and 'left' in node \
             and 'right' in node and 'operatorToken' in node \
             and 'kind' in node['operatorToken'] \
@@ -229,22 +205,6 @@ def is_alias(node):
                  'escapedText' in node['right'])
             
 def extract_alias_names(node):
-    '''
-    trgt = node['expression']
-    _left = trgt['left']
-    _right = trgt['right']
-    left_text = ''
-    right_text = ''
-    if 'escapedText' in _left: left_text = _left['escapedText']
-    elif 'text' in _left: left_text = _left['text']
-    elif 'name' in _left and 'escapedText' in _left['name']: left_text = _left['name']['escapedText']
-    elif 'name' in _left and 'text' in _left['name']: left_text = _left['name']['text']
-    if 'escapedText' in _right: right_text = _right['escapedText']
-    elif 'text' in _right: right_text = _right['text']
-    elif 'name' in _right and 'escapedText' in _right['name']: right_text = _right['name']['escapedText']
-    elif 'name' in _right and 'text' in _right['name']: right_text = _right['name']['text']
-    return left_text, right_text
-    '''
     trgt = node
     _left = trgt['left']
     _right = trgt['right']
@@ -254,7 +214,6 @@ def extract_alias_names(node):
     elif 'name' in _left and 'escapedText' in _left['name']: left_text = _left['name']['escapedText']
     if 'escapedText' in _right: right_text = _right['escapedText']
     elif 'name' in _right and 'escapedText' in _right['name']: right_text = _right['name']['escapedText']
-    #print("Returning " + str((left_text, right_text)))
     return left_text, right_text
             
 def build_alias_list_single(node, aliases=None):
@@ -313,10 +272,8 @@ def strip_aliases_single(node, aliases):
             for n1 in node[n]:
                 strip_aliases_single(n1, aliases)
         elif n == 'escapedText' or n == 'text':
-            #print("Replacing " + str(node[n]))
             for a in aliases:
                 if node[n] in a:
-                    #print("Setting " + str(node[n]) + " to " + str(a[0]))
                     node[n] = a[0]
 
 def strip_aliases(statements, aliases):
@@ -469,7 +426,7 @@ def build_variable_vocabulary_single(node, vocab=None, missing_names=None):
         k = ''
         if 'kind' in node:
             k = str(node['kind'])
-        #print("Unable to assign " + str(node['escapedText']) + ", " + k)
+            
         missing_names.append(node['escapedText'])
         
     for n in node:
@@ -734,16 +691,6 @@ def emit_sequential_flat(statements, structural_metadata):
     return sequences
 
 def seq_to_pandas(sequence):
-    '''
-    FUNC!
-    part_intent_data, 
-    part_intent_func, 
-    part_called, 
-    part_aliases, 
-    part_intent_data_max,
-    part_intent_func_max
-    '''
-    
     colz = ['FUNC', 'DATA', 'UNKNOWN', 'KIND', 'INIT', 'COND', 
                                'THEN', 'BODY', 'PARAM', 'DECL', 'FINL', 'TRY',
                                'ARG', 'CATCH', 'VARDECL', 'BLOCK', 'LEFT', 'RIGHT',
@@ -769,7 +716,6 @@ def seq_to_pandas(sequence):
             base_template['INTENT_FUNC_MAX'] = intent_func_max
             base_template['FREQ'] = freq
         else:
-            #<call>!<freq>
             parts = s.split('!')
             calltype = parts[0]
             freq = float(parts[1])
@@ -795,12 +741,3 @@ metadata = build_structural_metadata(t)
 sequences = emit_sequential_flat(t, metadata)
 pdc = seq_to_pandas(sequences)
 print(list(pdc['FREQ']))
-#print(t[11])
-
-ks = []
-for v in t:
-    ks += build_structural_metadata_single(v)
-
-
-print(Counter(ks))
-#print(dumpz)
