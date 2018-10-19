@@ -2,6 +2,8 @@
 
 const ts = require("typescript")
 
+let sourceCode = ``;
+
 fs.readFile('d3.min.js', function (err, data) {
   if (err) {
     throw err; 
