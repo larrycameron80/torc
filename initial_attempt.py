@@ -97,56 +97,27 @@ def fuzz(node):
 #Basically pulls certain leaf nodes into the parent node
 #We do this to make some data more accessible
 #Every node has pos, end, flags. Most have kind as well.
-def collapse_names(node):
-    print("In collapse")
-    cur_depth = node['maxdepth']
-    if cur_depth == 1:
-        if 'expression' in node and 'name' in node:
-            print("Valid, reducing " + str(node))
-            if 'escapedText' in node['expression']:
-                exp_text = node['expression']['escapedText']
-                del node['expression']
-            elif 'text' in node['expression']:
-                exp_text = node['expression']['text']
-                del node['expression']
-            if 'escapedText' in node['name']:
-                node['name']['escapedText'] = exp_text + "." + node['name']['escapedText']
-            elif 'text' in node['name']:
-                node['name']['text'] = exp_text + "." + node['name']['text']
-        
-    for n in node:
-        trgt = node[n]
-        if type(trgt) == dict:
-            collapse_names(node[n])
-        elif type(trgt) == list:
-            for n1 in node[n]:
-                collapse_names(n1)
-               
-dumpz = [] 
-def collapse_names2(node, _search=False):
+def collapse_names(node, _search=False):
     cur_depth = node['maxdepth']
     ignore_types = ['pos', 'end', 'flags', 'kind', 'maxdepth', 'modifierFlagsCache']
     valid_subtypes = ['expression', 'name']
-    
-    dumpz.append([x for x in node if (not x in ignore_types) and (not x in valid_subtypes)])
-    
     
     if (not 'name' in node) or (not 'expression' in node) or ('escapedText' not in node['name'])\
      or ('escapedText' not in node['expression']):
         for n in node:
             trgt = node[n]
             if type(trgt) == dict:
-                collapse_names2(node[n])
+                collapse_names(node[n])
             elif type(trgt) == list:
                 for n1 in node[n]:
-                    collapse_names2(n1)
+                    collapse_names(n1)
                     
     elif 'name' in node and 'expression' in node and cur_depth == 1:
         tname = node['expression']['escapedText'] + '.' + node['name']['escapedText']
         node['name']['escapedText'] = tname
         return tname
     elif 'expression' in node and 'name' in node:
-        partialname = collapse_names2(node['expression'], _search=True)
+        partialname = collapse_names(node['expression'], _search=True)
         if not partialname: return
         if not _search:
             node['name']['escapedText'] = partialname + '.' + node['name']['escapedText']
@@ -154,31 +125,6 @@ def collapse_names2(node, _search=False):
             return partialname + '.' + node['name']['escapedText']
     else:
         pass
-    
-        
-                
-#drop anything which has empty text/escapedtext
-def drop_nonsense(node):
-    for n in node:
-        trgt = node[n]
-        if type(trgt) == dict:
-            if 'escapedText' in node[n] and not node[n]['escapedText']:
-                del node[n]
-            elif 'text' in node[n] and not node[n]['text']:
-                del node[n]
-            else:
-                drop_nonsense(node[n])
-        elif type(trgt) == list:
-            good_nodes = []
-            for n1 in node[n]:
-                if 'escapedText' in node[n] and not node[n]['escapedText']:
-                    continue
-                elif 'text' in node[n] and not node[n]['text']:
-                    continue
-                else:
-                    drop_nonsense(n1)
-                    good_nodes.append(n1)
-            node[n] = good_nodes
                 
 '''
 We're focusing on the structure around variables right now
@@ -245,7 +191,7 @@ def build_alias_list(statements):
     aliases = []
     for v in statements:
         fuzz(v)
-        collapse_names2(v)
+        collapse_names(v)
         _aliases = build_alias_list_single(v)
         for x in _aliases:
             trgt = _aliases[x]
