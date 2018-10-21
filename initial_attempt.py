@@ -1,8 +1,4 @@
-'''
-work work /orcpeon
-'''
-
-import json, time
+import json, time, math
 from copy import deepcopy
 from collections import defaultdict, Counter
 import pandas as pd
@@ -583,9 +579,13 @@ def sub_uniques(statements, vocab, aliases):
 def build_structural_metadata_single(node, kinds=None):
     if not kinds: kinds = []
     
+    #print(node)
     for n in node:
+        #print(n)
         if n == 'operatorToken':
             kinds.append(node[n]['kind'])
+        elif n == 'kind' and node[n] in [188]: #and maybe 216
+            kinds.append('SQBRKT')
         elif type(node[n]) == tuple and node[n][0] == 'UNKNOWN':
             kinds.append('UNKNOWN')
         elif n == 'escapedText':
@@ -621,6 +621,14 @@ def build_structural_metadata_single(node, kinds=None):
             kinds.append('LEFT')
         elif n == 'right':
             kinds.append('RIGHT')
+        elif n == 'kind' and node[n] in [188]:
+            kinds.append('SQBRKT')
+        elif n == 'argumentExpression':
+            kinds.append('ARGEXP')
+        elif n == 'text':
+            kinds.append('TEXT')
+        elif n == 'kind' and node[n] in [228]:
+            kinds.append('RTRN')
         trgt = node[n]
         if type(trgt) == dict:
             kinds = build_structural_metadata_single(node[n], kinds)
@@ -649,6 +657,11 @@ def emit_sequential_flat_single(node, structural_metadata, seq=None):
             tknFreq = structural_metadata['UNKNOWN']
             freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
             seq.append(('UNKNOWN', freq))
+        elif n == 'kind' and node[n] in [188]: #and maybe 216
+            #print("Found SQBRKT")
+            tknFreq = structural_metadata['SQBRKT']
+            freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
+            seq.append(('SQBRKT', freq))
         elif n == 'escapedText':
             if node[n][0] == 'FUNC':
                 tknFreq = structural_metadata['FUNC']
@@ -716,6 +729,23 @@ def emit_sequential_flat_single(node, structural_metadata, seq=None):
             tknFreq = structural_metadata['RIGHT']
             freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
             seq.append(('RIGHT', freq))
+        elif n == 'argumentExpression':
+            tknFreq = structural_metadata['ARGEXP']
+            freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
+            seq.append(('ARGEXP', freq))
+        elif n == 'text':
+            print(node[n])
+            tknFreq = structural_metadata['TEXT']
+            freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
+            shannon = getshannon(node[n])
+            isnumber = getnumberstatus(node[n])
+            shannon = shannon if not isnumber else 0.0
+            seq.append(('TEXT', freq, shannon, isnumber))
+        elif n == 'kind' and node[n] in [228]:
+            tknFreq = structural_metadata['RTRN']
+            freq = str(round( tknFreq /float(tknFreq_all + 1) , FUZZ_AMT))
+            seq.append(('RTRN', freq))
+            
         trgt = node[n]
         if type(trgt) == dict:
             seq = emit_sequential_flat_single(node[n], structural_metadata, seq)
@@ -724,6 +754,26 @@ def emit_sequential_flat_single(node, structural_metadata, seq=None):
                 seq = emit_sequential_flat_single(n1, structural_metadata, seq)
                 
     return seq
+
+def getnumberstatus(t):
+    try:
+        float(t)
+        return True
+    except:
+        return False
+
+def getshannon(t):
+    lent = float(len(t))
+    ps = defaultdict(int)
+    for x in t:
+        ps[x] += 1
+    ps2 = defaultdict(float)
+    for x in ps:
+        ps2[x] = ps[x] / lent
+    v = []
+    for x in ps2:
+        v.append(ps2[x] * math.log(ps2[x], 2))
+    return abs(sum(v))/8.
 
 def emit_sequential_flat(statements, structural_metadata):
     sequences = []
@@ -748,8 +798,9 @@ def seq_to_pandas(sequence):
     colz = ['FUNC', 'DATA', 'UNKNOWN', 'KIND', 'INIT', 'COND', 
                                'THEN', 'BODY', 'PARAM', 'DECL', 'FINL', 'TRY',
                                'ARG', 'CATCH', 'VARDECL', 'BLOCK', 'LEFT', 'RIGHT',
-                               'FREQ', 'INTENT_DATA', 'INTENT_FUNC', 'CALLED',
-                               'ALIASES', 'INTENT_FUNC_MAX', 'INTENT_DATA_MAX']
+                               'SQBRKT', 'FREQ', 'INTENT_DATA', 'INTENT_FUNC', 'CALLED',
+                               'ALIASES', 'INTENT_FUNC_MAX', 'INTENT_DATA_MAX',
+                               'ARGEXP', 'SHANNON', 'ISNUMBER', 'RTRN']
 
     i = 0
     dflist = []
@@ -779,13 +830,20 @@ def seq_to_pandas(sequence):
             freq = parts[1]
             base_template[calltype] = 1.
             base_template['FREQ'] = freq
+            try:
+                shannon = parts[2]
+                isnumber = parts[3]
+                base_template['SHANNON'] = shannon
+                base_template['ISNUMBER'] = isnumber
+            except IndexError:
+                pass
         dflist.append(base_template)
         i += 1
     df = pd.DataFrame(dflist)
     return df
 
 floc = 'out.json'
-#floc = 'tew.json'
+floc = 'tew.json'
 data = ''
 
 with open(floc, 'r') as f:
@@ -834,10 +892,4 @@ start_time_local = time.time()
 pdc = seq_to_pandas(sequences)
 print("Processed sequences in " + str(time.time() - start_time_local))
 
-ks = []
-for v in t:
-    ks += build_structural_metadata_single(v)
-
-
-print(Counter(ks))
-#print(dumpz)
+print(list(pdc['SHANNON']))
