@@ -39,4 +39,4 @@ Very little. We've got the generator-related files:
 Then we've got the readme<span></span>.md file and a sample .torc file.
 
 ## How do I get involved?
-Wait until the night of 11/11, or preferably anytime 11/12. :) We'll have more when the white paper is released. The white paper release is our real torc "release date." Once we've released the white paper, we'll need more people in all areas. All we have is a data scientist and a graphic designer. If you can contribute anything at all, even just input on how you believe torc can evolve, your contribution will be valuable and appreciated due to how young torc is.
+Wait until the night of 11/11, or preferably anytime 11/12. :) We'll have more information when the white paper is released. The white paper release is our real torc "release date." Once we've released the white paper, we'll need more people in all areas. All we have is a data scientist and a graphic designer. If you can contribute anything at all, even just input on how you believe torc can evolve, your contribution will be valuable and appreciated due to how young torc is.
