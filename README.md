@@ -19,8 +19,6 @@ For now, what we can say is that we:
 4) After a few passes, we then walk through the AST a final time and emit signals on quite a few triggers.
 5) We then collect the resulting signals and drop them into the resulting CSV, what we deem the torc format.
 
-## How does torc work?
-You'll have to read the blue paper to really dig in deep, but the idea can be described as "making the most pertinent data available at the most opportune times." What this entails is creating a fairly large amount of metadata on how the code's structure behaves, not the code itself, and tying the resulting metadata to more literal AST attributes we see as we see them. The end result is some format which allows the RNN to evaluate important events in the AST as they happen while providing enough information to the RNN. When done properly, the RNN can then evaluate these AST signals in the context of the document as a whole, and not just in the context of recent code snippets.
 
 ## How do I run the prototype?
 You'll need node and python2.7 for this. Required: typescript, fs for node and pandas for python.
@@ -29,5 +27,16 @@ You'll need node and python2.7 for this. Required: typescript, fs for node and p
 
 There, you're done. The proof of concept doesn't support batch translation at the moment- you'll need to create a second script which does that for you. When the white paper is released, I'll include a file then which will let you do batch translations for entire folders.
 
+## How does torc actually work?
+You'll have to read the blue paper to really dig in deep, but the idea can be described as "making the most pertinent data available at the most opportune times." What this entails is creating a fairly large amount of metadata on how the code's structure behaves, not the how the code itself behaves, and tying the resulting metadata to more literal AST attributes we see as we see them. In fact, we heavily downplay code behavior; torc is almost entirely oriented around the structure of the code itself. That said, the end result is some format which allows the RNN to evaluate important events in the AST as they happen while providing enough information to the RNN. When done properly, the RNN can then evaluate these AST signals in the context of the document as a whole as well as within the context of the signals themselves, and not just in the context of recent code snippets.
+
+## What is included in the current repo?
+Very little. We've got the generator-related files:
+* astgen.js
+* nodemetadata<span></span>.py
+* translator<span></span>.py
+
+Then we've got the readme<span></span>.md file and a sample .torc file.
+
 ## How do I get involved?
-Wait a week :) We'll have more when the white paper is released. The white paper release is our real torc "release date." Once we've released the white paper, we'll need more people in all areas. All we have is a data scientist and a graphic designer. If you can contribute anything at all, even just input on how you believe torc can evolve, your contribution will be valuable.
+Wait until the night of 11/11, or preferably anytime 11/12. :) We'll have more when the white paper is released. The white paper release is our real torc "release date." Once we've released the white paper, we'll need more people in all areas. All we have is a data scientist and a graphic designer. If you can contribute anything at all, even just input on how you believe torc can evolve, your contribution will be valuable and appreciated due to how young torc is.
