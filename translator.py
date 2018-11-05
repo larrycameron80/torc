@@ -308,6 +308,7 @@ class Translator:
         v = []
         for x in ps2:
             v.append(ps2[x] * math.log(ps2[x], 2))
+        #8 -> A good cutoff point for shannon entropy as per stackoverflow
         return min(abs(sum(v))/8., 1.)
 
     def _getnumberstatus(self, t):
