@@ -599,7 +599,7 @@ class Translator:
         
         #We define an alias as expression: left (depth<=1), op (kind=58), right (depth<=1)
         node_is_alias = False
-        if self.is_alias(node):
+        if self._is_alias(node):
             #We have an alias!
             left_name, right_name = self._extract_alias_names(node)
             if left_name and right_name:
@@ -685,7 +685,7 @@ class Translator:
         sequences = []
         i = 0
         for s in statements:
-            print((i, len(statements)))
+            #print((i, len(statements)))
             sequences += self._emit_sequential_flat_single(s, structural_metadata, max_char_length)
     
         return sequences
@@ -813,7 +813,7 @@ class Translator:
                 if len(s) >= 3:
                     shannon = parts[2]
                     loglen = parts[3]
-                    print("Shannon: " + str(shannon))
+                    #print("Shannon: " + str(shannon))
                     base_template['SHANNON'] = shannon
                     base_template['LOGLEN'] = loglen
                 try:
@@ -932,10 +932,10 @@ class Translator:
         #walk through our metadataized tree and emit important facts as we
         #see them
         #also why do we use metadata? it'll literally be Counter().
-        sequences = emit_sequential_flat(raw_js, metadata, max_char_length)
+        sequences = self.emit_sequential_flat(raw_js, metadata, max_char_length)
         
         #translate the facts to our pandas dataframe
-        pdc = seq_to_pandas(sequences)
+        pdc = self.seq_to_pandas(sequences)
         pdc = pdc * 1 #remove true, false
 
         #dump the result
@@ -954,5 +954,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     outfile_torc = args.outputfile
     if not outfile_torc.endswith('torc'): outfile_torc += '.torc'
-    translator = Translator(args.intputfile, outfile_torc)
+    translator = Translator(args.inputfile, outfile_torc)
     translator.translate()

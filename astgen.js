@@ -20,21 +20,18 @@ fs.readFile(sourceName, function (err, data) {
 
 
     console.log("Loaded " + sourceName);
-    
-    console.log(sourceCode)
-    console.log("Dumping")
+    console.log("Dumping");
     
     let tsSourceFile = ts.createSourceFile(
       '/tmp/test.tmp',
       sourceCode,
       ts.ScriptTarget.Latest
-    )
-    
-    console.log(sourceCode);
+    ) 
     
     fs.writeFile(targetName, JSON.stringify(tsSourceFile.statements), function(e) {
         if(e) {
             console.log(e);
         }
     }); 
+    console.log("Dumped to " + targetName);
 });
