@@ -10,9 +10,9 @@ Simple, right?
 As it stands, torc is only available for JavaScript, though there are plans to expand torc to Bash/other shell scripts, Python, and more. 
 
 ## What does the torc translator look like?
-More on this coming in the white paper, ETA release date of 11/11. If possible, a blue and yellow paper documenting the technicals and efficacy of the torc format will be released on 11/11 as well.
+Please read the white paper (extended) to understand the theory behind translator.py.
 
-For now, what we can say is that we:
+Beyond that, the core flow of translator.py is as follows:
 1) Generate an AST and dump it as a JSON file.
 2) We then use the resulting AST file and walk through our tree, depth first style.
 3) As we go along, we record metadata about what we see. We will walk through the AST multiple times, collecting data and modifying our AST as required.
@@ -39,4 +39,4 @@ Very little. We've got the generator-related files:
 Then we've got the readme<span></span>.md file and a sample .torc file.
 
 ## How do I get involved?
-Wait until the night of 11/11, or preferably anytime 11/12. :) We'll have more information when the white paper is released. The white paper release is our real torc "release date." Once we've released the white paper, we'll need more people in all areas. All we have is a data scientist and a graphic designer. If you can contribute anything at all, even just input on how you believe torc can evolve, your contribution will be valuable and appreciated due to how young torc is.
+More information coming.
