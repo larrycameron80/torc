@@ -41,6 +41,7 @@ Then we've got the readme<span></span>.md file, a sample .torc file, and other m
 ## Requirements
 
 Node: typescript
+
 Python(2/3): Pandas
 
 The code was developed for python3 but should work for python2.7.
