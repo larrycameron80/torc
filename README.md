@@ -36,7 +36,14 @@ Very little. We've got the generator-related files:
 * nodemetadata<span></span>.py
 * translator<span></span>.py
 
-Then we've got the readme<span></span>.md file and a sample .torc file.
+Then we've got the readme<span></span>.md file, a sample .torc file, and other miscellaneous files.
+
+## Requirements
+
+Node: typescript
+Python(2/3): Pandas
+
+The code was developed for python3 but should work for python2.7.
 
 ## How do I get involved?
 More information coming.
