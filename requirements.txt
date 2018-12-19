@@ -1,0 +1,5 @@
+Node:
+npm install typescript
+
+Python3, likely works with 2:
+pip3 install pandas

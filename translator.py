@@ -65,8 +65,8 @@ THEN                -> Encountered a then statement
 TRY                 -> Encountered a try
 TXTLEN              -> Length of text relative to the longest string in the document
 UNKNOWN             -> Unknown kind
-Unnamed: 0          -> Bug. Doesn't appear to have a negative influence so I'm not
-                        fixing this quite yet.
+Unnamed: 0          -> Bug. Doesn't appear to have a noticeable influence so I'm not
+                        fixing this quite yet. Index data.
 VARDECL             -> Encountered a variableDeclaration attribute. Note that
                         the previous declaration feature is for inferred
                         declarations.
